@@ -1,14 +1,22 @@
 from tkinter import *
 import customtkinter as ct
 from pathlib import Path
+from plotter import Plotter
+
+import pandas as pd
 
 ct.set_appearance_mode('System')
 ct.set_default_color_theme('green')
 
+OBLIGATORY_INDEXES = []
+PLOT_TYPES = ["Liniowy", "Pudełkowy"]
 
 class App(ct.CTk):
     def __init__(self):
         super().__init__()
+
+        # Initialize plotter
+        self.plot = Plotter()
 
         # Main config
         self.title("Analiza kursu akcji")
@@ -38,30 +46,45 @@ class App(ct.CTk):
                                          font=ct.CTkFont(size=16, weight='bold'))
         self.options_label.grid(padx=20, pady=10)
 
-        self.SMA_switch = ct.CTkSwitch(self.options_frame, text='SMA')
+        self.SMA_v = IntVar()
+        self.EMA_v = IntVar()
+        self.RSI_v = IntVar()
+
+        self.SMA_switch = ct.CTkSwitch(self.options_frame, text='SMA', variable=self.SMA_v)
         self.SMA_switch.grid(padx=25, pady=5, sticky='w')
-        self.EMA_switch = ct.CTkSwitch(self.options_frame, text='EMA')
+        self.EMA_switch = ct.CTkSwitch(self.options_frame, text='EMA', variable=self.EMA_v)
         self.EMA_switch.grid(padx=25, pady=5, sticky='w')
-        self.RSI_switch = ct.CTkSwitch(self.options_frame, text='RSI')
+        self.RSI_switch = ct.CTkSwitch(self.options_frame, text='RSI', variable=self.RSI_v)
         self.RSI_switch.grid(padx=25, pady=5, sticky='w')
 
         # Include options
         self.include_frame = ct.CTkFrame(self, corner_radius=0)
         self.include_frame.grid(row=1, column=1, sticky="nsew", pady=20)
-        self.include_label = ct.CTkLabel(self.include_frame, text='Uwzględnij na wykresie',
+        self.include_label = ct.CTkLabel(self.include_frame, text='Ustawienia wykresu',
                                          font=ct.CTkFont(size=16, weight='bold'))
         self.include_label.grid(padx=20, pady=10)
 
-        self.VOL_switch = ct.CTkSwitch(self.include_frame, text='Wykres woluminu')
+        self.VOL_v = IntVar()
+        self.VOL_v.set(1)
+        self.plot_t_v = StringVar()
+        self.plot_t_v.set(PLOT_TYPES[0])
+
+        self.VOL_switch = ct.CTkSwitch(self.include_frame, text='Wykres woluminu', values=PLOT_TYPES,
+                                       variable=self.VOL_v)
         self.VOL_switch.grid(padx=25, pady=5, sticky='w')
-        self.VOL_switch.select()
+        # self.VOL_switch.select()
+
+        self.plot_type_option_label = ct.CTkLabel(self.include_frame, text="Typ wykresu:")
+        self.plot_type_option_label.grid(padx=25, pady=(5, 0), sticky='w')
+        self.plot_type_option = ct.CTkOptionMenu(self.include_frame, values=, command=None)
+        self.plot_type_option.grid(padx=25, pady=(0, 5), sticky='w')
 
         # Generate plot
         self.plot_frame = ct.CTkFrame(self, corner_radius=0)
         self.plot_frame.grid(row=2, column=0, columnspan=2, sticky="sew", )
 
         self.generate_bt = ct.CTkButton(self.plot_frame, text='Wygeneruj wykres!',
-                                        font=ct.CTkFont(size=14, weight='bold'), command=None, width=200)
+                                        font=ct.CTkFont(size=14, weight='bold'), command=self.generate_plot, width=200)
         self.generate_bt.pack(side=BOTTOM, pady=10)
 
     def UploadTxt(self, event=None):
@@ -71,9 +94,11 @@ class App(ct.CTk):
         filepath = Path(filename.name)
         filename.close()
 
-        # TODO: Create empty plot
+        self.plot.load_data(pd.read_csv(filepath))
+
         self.get_file.configure(text=f'Wybrany plik: {filepath.name}')
 
+    def generate_plot(self):
 
 #
 # button.pack()
