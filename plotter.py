@@ -1,4 +1,3 @@
-import numpy as np
 import pandas as pd
 import talib as ta
 import plotly.graph_objects as go
@@ -19,22 +18,32 @@ class Plotter:
 
         self.data = None
 
+        self.plot_type = "Liniowy"
+
+    @property
+    def ready(self):
+        return self.data is not None
+
     def load_data(self, data: pd.DataFrame):
+        if 'Date' in data.columns:
+            data.set_index('Date')
         self.data = data
 
     def setup(self,
               sma=False,
               ema=False,
               rsi=False,
-              volume=False):
+              volume=False,
+              plot_type="Liniowy"):
         self.sma = sma
         self.ema = ema
         self.rsi = rsi
         self.volume = volume
+        self.plot_type = plot_type
 
     def generate(self):
         if self.data is None:
-            raise DataError("Can't generate plot with no data.")
+            raise AttributeError("Can't generate plot with no data.")
 
         rows_heights = [1]
         if self.volume:
@@ -50,9 +59,28 @@ class Plotter:
         df = self.data
 
         # Main plot
-        fig.add_trace(go.Scatter(x=df.index, y=df['Close'], name="Analiza akcji"),
-                      row=1, col=1
-                      )
+        if self.plot_type == "Liniowy":
+            fig.add_trace(go.Scatter(x=df.index, y=df['Close'], name="Analiza akcji"),
+                          row=1, col=1
+                          )
+        elif self.plot_type == "Świecowy":
+            fig.add_trace(go.Candlestick(x=df.index,
+                                         open=df['Open'],
+                                         high=df['High'],
+                                         low=df['Low'],
+                                         close=df['Close'],
+                                         name="Analiza akcji"),
+                          row=1, col=1
+                          )
+        elif self.plot_type == 'OHLC':
+            fig.add_trace(go.Ohlc(x=df.index,
+                                  open=df['Open'],
+                                  high=df['High'],
+                                  low=df['Low'],
+                                  close=df['Close'],
+                                  name="Analiza akcji"),
+                          row=1, col=1
+                          )
 
         if self.sma:
             df['SMA'] = ta.SMA(df['Close'], SMA_ARG)
@@ -77,17 +105,3 @@ class Plotter:
         fig.update(layout_xaxis_rangeslider_visible=False)
         fig.show()
 
-
-# TESTING
-if __name__ == '__main__':
-    import yfinance
-    from pandas.errors import DataError
-
-    GOOGLE_info = yfinance.Ticker("AAPL")
-    # GOOGLE_info.history(period='1y').to_csv(r'Q:\Dokumenty\!Studia\!Projects\action-analyser\samples\apple_1y.csv')
-    # print(GOOGLE_info.history(period='max').index)
-
-    p = Plotter()
-    p.load_data(GOOGLE_info.history(period='1y'))
-    p.setup(sma=True, ema=True, rsi=True, volume=True)
-    p.generate()

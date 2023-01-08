@@ -9,7 +9,8 @@ ct.set_appearance_mode('System')
 ct.set_default_color_theme('green')
 
 OBLIGATORY_INDEXES = []
-PLOT_TYPES = ["Liniowy", "Pudełkowy"]
+PLOT_TYPES = ["Liniowy", "Świecowy", "OHLC"]
+
 
 class App(ct.CTk):
     def __init__(self):
@@ -33,10 +34,10 @@ class App(ct.CTk):
         self.top_frame = ct.CTkFrame(self, height=50, corner_radius=0)
         self.top_frame.grid(row=0, column=0, columnspan=2, sticky="nsew")
 
-        self.file_info = ct.CTkLabel(self.top_frame, text='Wybierz plik z danymi:', width=140)
+        self.file_info = ct.CTkLabel(self.top_frame, text='Wybierz plik z danymi:', width=180)
         self.file_info.pack(side=LEFT)
 
-        self.get_file = ct.CTkButton(self.top_frame, text='Plik nie został wybrany', command=self.UploadTxt, width=450)
+        self.get_file = ct.CTkButton(self.top_frame, text='Plik nie został wybrany', command=self.UploadTxt, width=400)
         self.get_file.pack(side=LEFT)
 
         # Plot options frame
@@ -69,14 +70,14 @@ class App(ct.CTk):
         self.plot_t_v = StringVar()
         self.plot_t_v.set(PLOT_TYPES[0])
 
-        self.VOL_switch = ct.CTkSwitch(self.include_frame, text='Wykres woluminu', values=PLOT_TYPES,
+        self.VOL_switch = ct.CTkSwitch(self.include_frame, text='Wykres woluminu',
                                        variable=self.VOL_v)
         self.VOL_switch.grid(padx=25, pady=5, sticky='w')
-        # self.VOL_switch.select()
 
         self.plot_type_option_label = ct.CTkLabel(self.include_frame, text="Typ wykresu:")
         self.plot_type_option_label.grid(padx=25, pady=(5, 0), sticky='w')
-        self.plot_type_option = ct.CTkOptionMenu(self.include_frame, values=, command=None)
+        self.plot_type_option = ct.CTkOptionMenu(self.include_frame, values=PLOT_TYPES,
+                                                 variable=self.plot_t_v, command=None)
         self.plot_type_option.grid(padx=25, pady=(0, 5), sticky='w')
 
         # Generate plot
@@ -97,11 +98,22 @@ class App(ct.CTk):
         self.plot.load_data(pd.read_csv(filepath))
 
         self.get_file.configure(text=f'Wybrany plik: {filepath.name}')
+        self.file_info.configure(bg_color='transparent', font=ct.CTkFont(weight='normal'))
 
     def generate_plot(self):
+        if not self.plot.ready:
+            self.file_info.configure(bg_color='red', font=ct.CTkFont(weight='bold'))
+            return
+        self.plot.setup(
+            sma=self.SMA_v.get(),
+            ema=self.EMA_v.get(),
+            rsi=self.RSI_v.get(),
+            volume=self.VOL_v.get(),
+            plot_type=self.plot_t_v.get()
+        )
+        self.plot.generate()
 
-#
-# button.pack()
+
 
 if __name__ == '__main__':
     app = App()
