@@ -1,3 +1,12 @@
+"""
+.. module:: plotter
+   :platform: Unix, Windows
+   :synopsis: A module for plotting financial data with various indicators.
+
+.. moduleauthor:: ZyndramZM
+
+"""
+
 import pandas as pd
 import talib as ta
 import plotly.graph_objects as go
@@ -9,7 +18,36 @@ EMA_ARG = 100
 
 # Main plotter class
 class Plotter:
+    """
+    A class used to plot financial data with various indicators.
+
+    ...
+
+    Attributes
+    ----------
+    sma : bool
+        a flag indicating whether to plot Simple Moving Average
+    ema : bool
+        a flag indicating whether to plot Exponential Moving Average
+    rsi : bool
+        a flag indicating whether to plot Relative Strength Index
+    volume : bool
+        a flag indicating whether to plot trading volume
+    data : pd.DataFrame
+        the financial data to be plotted
+    plot_type : str
+        the type of plot to be generated ("Liniowy", "Świecowy", "OHLC")
+    """
+
     def __init__(self):
+        """
+        Constructs all the necessary attributes for the plotter object.
+
+        Parameters
+        ----------
+            None
+        """
+
         self.sma = False
         self.ema = False
         self.rsi = False
@@ -18,13 +56,35 @@ class Plotter:
 
         self.data = None
 
-        self.plot_type = "Liniowy"
+        self.plot_type = "Linear"
 
     @property
     def ready(self):
+        """
+        Checks if the data is ready for plotting.
+
+        Returns
+        -------
+        bool
+            True if data is not None, False otherwise
+        """
+
         return self.data is not None
 
     def load_data(self, data: pd.DataFrame):
+        """
+        Loads the financial data to be plotted.
+
+        Parameters
+        ----------
+        data : pd.DataFrame
+            The financial data to be plotted.
+
+        Returns
+        -------
+        None
+        """
+
         if 'Date' in data.columns:
             data.set_index('Date')
         self.data = data
@@ -34,7 +94,28 @@ class Plotter:
               ema=False,
               rsi=False,
               volume=False,
-              plot_type="Liniowy"):
+              plot_type="Linear"):
+        """
+        Sets up the plotter with the desired indicators and plot type.
+
+        Parameters
+        ----------
+        sma : bool, optional
+            Whether to plot Simple Moving Average (default is False)
+        ema : bool, optional
+            Whether to plot Exponential Moving Average (default is False)
+        rsi : bool, optional
+            Whether to plot Relative Strength Index (default is False)
+        volume : bool, optional
+            Whether to plot trading volume (default is False)
+        plot_type : str, optional
+            The type of plot to be generated ("Liniowy", "Świecowy", "OHLC") (default is "Liniowy")
+
+        Returns
+        -------
+        None
+        """
+
         self.sma = sma
         self.ema = ema
         self.rsi = rsi
@@ -42,6 +123,20 @@ class Plotter:
         self.plot_type = plot_type
 
     def generate(self):
+        """
+        Generates the plot with the loaded data and the set indicators. Raises an AttributeError if
+        no data has been loaded.
+
+        Raises
+        ------
+        AttributeError
+            If no data has been loaded.
+
+        Returns
+        -------
+        None
+        """
+
         if self.data is None:
             raise AttributeError("Can't generate plot with no data.")
 
@@ -59,17 +154,17 @@ class Plotter:
         df = self.data
 
         # Main plot
-        if self.plot_type == "Liniowy":
-            fig.add_trace(go.Scatter(x=df.index, y=df['Close'], name="Analiza akcji"),
+        if self.plot_type == "Linear":
+            fig.add_trace(go.Scatter(x=df.index, y=df['Close'], name="Action value"),
                           row=1, col=1
                           )
-        elif self.plot_type == "Świecowy":
+        elif self.plot_type == "Candy":
             fig.add_trace(go.Candlestick(x=df.index,
                                          open=df['Open'],
                                          high=df['High'],
                                          low=df['Low'],
                                          close=df['Close'],
-                                         name="Analiza akcji"),
+                                         name="Action value"),
                           row=1, col=1
                           )
         elif self.plot_type == 'OHLC':
@@ -78,7 +173,7 @@ class Plotter:
                                   high=df['High'],
                                   low=df['Low'],
                                   close=df['Close'],
-                                  name="Analiza akcji"),
+                                  name="Action value"),
                           row=1, col=1
                           )
 
@@ -104,4 +199,3 @@ class Plotter:
         # Do not show OHLC's rangeslider plot
         fig.update(layout_xaxis_rangeslider_visible=False)
         fig.show()
-

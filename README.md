@@ -1,36 +1,36 @@
 # action-analyser
 
-## Wymagania:
-1. Python 3.9
-2. `pip` - domyślny menadżer pakietów Python.
+## Requirements:
+1. python 3.9
+2. `pip` - the default Python package manager.
 
-*Sugerowana instalacja w środowisku wirtualnym (virtualenv)*
+*Suggested installation in a virtual environment (virtualenv)*.
 
-## Instalacja
+## Installation
 
-Aby zainstalować zależności projektu, należy:
-1. Zainstalować *wheel* do biblioteki `TA-Lib`. Aby to zrobić, należy wykonać
-(z poziomu folderu projektu):
-```shell
-pip install ./lib/TA-Lib.whl
-```
+To install the project dependencies, you need to:
+1. install *wheel* to the `TA-Lib` library. To do this, you need to do the following.
+(from the project folder):
+    ```shell
+    pip install ./lib/TA-Lib.whl
+    ```
 
-2. Zainstalować wymagania z pliku `requirements.txt`
-```shell
-pip install -r ./requirements.txt
-```
+2 Install the requirements from the `requirements.txt` file.
+    ```shell
+    pip install -r ./requirements.txt
+    ```
 
-Aby uruchomić program, należy wykonać plik `app.py`.
+To run the program, execute the `app.py` file.
 
-## Dodatkowe informacje
-* Do poprawnego działania aplikacji konieczne jest podanie pliku, zawierającego kolumny:
+## Additional information
+* For the correct operation of the application, it is necessary to specify the file, which contains columns:
   * `Date`
   * `Open`
   * `High`
   * `Low`
   * `Close`
   * `Volume`
-* Program nie sprawdza poprawności wgranego pliku.
-* Prostą metodą generowania takich plików jest skorzystanie z biblioteki `yfinance`.
-Przykładowy sposób tworzenia pliku i generowania wykresu na jego podstawie znajduje 
-się w pliku `generate_data.py`, natomiast przykładowe wygenerowane pliki — w folderze `samples`.
+* The program does not check the validity of the uploaded file.
+* A simple way to generate such files is to use the `yfinance` library.
+An example of how to create a file and generate a chart based on it can be found in the
+in the file `generate_data.py`, while sample generated files - in the `samples` folder.

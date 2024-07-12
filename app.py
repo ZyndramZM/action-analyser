@@ -9,7 +9,7 @@ ct.set_appearance_mode('System')
 ct.set_default_color_theme('green')
 
 OBLIGATORY_INDEXES = []
-PLOT_TYPES = ["Liniowy", "Świecowy", "OHLC"]
+PLOT_TYPES = ["Linear", "Candle", "OHLC"]
 
 
 class App(ct.CTk):
@@ -20,7 +20,7 @@ class App(ct.CTk):
         self.plot = Plotter()
 
         # Main config
-        self.title("Analiza kursu akcji")
+        self.title("Action Analyser")
         self.geometry('600x300')
         self.resizable(width=False, height=False)
 
@@ -34,16 +34,16 @@ class App(ct.CTk):
         self.top_frame = ct.CTkFrame(self, height=50, corner_radius=0)
         self.top_frame.grid(row=0, column=0, columnspan=2, sticky="nsew")
 
-        self.file_info = ct.CTkLabel(self.top_frame, text='Wybierz plik z danymi:', width=180)
+        self.file_info = ct.CTkLabel(self.top_frame, text='Choose data file:', width=180)
         self.file_info.pack(side=LEFT)
 
-        self.get_file = ct.CTkButton(self.top_frame, text='Plik nie został wybrany', command=self.UploadTxt, width=400)
+        self.get_file = ct.CTkButton(self.top_frame, text='No file chosen.', command=self.UploadTxt, width=400)
         self.get_file.pack(side=LEFT)
 
         # Plot options frame
         self.options_frame = ct.CTkFrame(self, corner_radius=0)
         self.options_frame.grid(row=1, column=0, sticky="nsew", pady=20)
-        self.options_label = ct.CTkLabel(self.options_frame, text='Wskaźniki na wykresie',
+        self.options_label = ct.CTkLabel(self.options_frame, text='Plot indicators',
                                          font=ct.CTkFont(size=16, weight='bold'))
         self.options_label.grid(padx=20, pady=10)
 
@@ -61,7 +61,7 @@ class App(ct.CTk):
         # Include options
         self.include_frame = ct.CTkFrame(self, corner_radius=0)
         self.include_frame.grid(row=1, column=1, sticky="nsew", pady=20)
-        self.include_label = ct.CTkLabel(self.include_frame, text='Ustawienia wykresu',
+        self.include_label = ct.CTkLabel(self.include_frame, text='Plot settings',
                                          font=ct.CTkFont(size=16, weight='bold'))
         self.include_label.grid(padx=20, pady=10)
 
@@ -70,11 +70,11 @@ class App(ct.CTk):
         self.plot_t_v = StringVar()
         self.plot_t_v.set(PLOT_TYPES[0])
 
-        self.VOL_switch = ct.CTkSwitch(self.include_frame, text='Wykres woluminu',
+        self.VOL_switch = ct.CTkSwitch(self.include_frame, text='Volume plot',
                                        variable=self.VOL_v)
         self.VOL_switch.grid(padx=25, pady=5, sticky='w')
 
-        self.plot_type_option_label = ct.CTkLabel(self.include_frame, text="Typ wykresu:")
+        self.plot_type_option_label = ct.CTkLabel(self.include_frame, text="Plot type:")
         self.plot_type_option_label.grid(padx=25, pady=(5, 0), sticky='w')
         self.plot_type_option = ct.CTkOptionMenu(self.include_frame, values=PLOT_TYPES,
                                                  variable=self.plot_t_v, command=None)
@@ -84,12 +84,12 @@ class App(ct.CTk):
         self.plot_frame = ct.CTkFrame(self, corner_radius=0)
         self.plot_frame.grid(row=2, column=0, columnspan=2, sticky="sew", )
 
-        self.generate_bt = ct.CTkButton(self.plot_frame, text='Wygeneruj wykres!',
+        self.generate_bt = ct.CTkButton(self.plot_frame, text='Generate plot!',
                                         font=ct.CTkFont(size=14, weight='bold'), command=self.generate_plot, width=200)
         self.generate_bt.pack(side=BOTTOM, pady=10)
 
     def UploadTxt(self, event=None):
-        filename = ct.filedialog.askopenfile(filetypes=[('Plik z opisem wykresu', '*.txt *.csv')])
+        filename = ct.filedialog.askopenfile(filetypes=[('Data file', '*.txt *.csv')])
         if filename is None:
             return
         filepath = Path(filename.name)
@@ -97,7 +97,7 @@ class App(ct.CTk):
 
         self.plot.load_data(pd.read_csv(filepath))
 
-        self.get_file.configure(text=f'Wybrany plik: {filepath.name}')
+        self.get_file.configure(text=f'Chosen file: {filepath.name}')
         self.file_info.configure(bg_color='transparent', font=ct.CTkFont(weight='normal'))
 
     def generate_plot(self):
